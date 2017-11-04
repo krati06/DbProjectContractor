@@ -3,6 +3,7 @@ package com.example.divyansh.dbprojectandroid;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -228,7 +229,8 @@ public class LoginActivity extends AppCompatActivity{
         @Override
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
-            showProgress(false);
+            Intent intent = new Intent(LoginActivity.this,StartPage.class);
+            startActivity(intent);
 
 //            if (success) {
 //                finish();
