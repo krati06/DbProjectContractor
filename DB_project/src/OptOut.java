@@ -53,7 +53,8 @@ public class OptOut extends HttpServlet {
 			String hostel_id = request.getParameter("hostel_id");
 			//String week_id = request.getParameter("week_id");	
 			try {
-			out.print(DBHandler.optout(id,hostel_id));
+				
+				out.print(DBHandler.optout(id));
 			}
 			catch (Exception e) {
 				// TODO Auto-generated catch block
