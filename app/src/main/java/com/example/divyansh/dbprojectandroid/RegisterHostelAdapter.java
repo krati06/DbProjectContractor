@@ -4,9 +4,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -15,15 +14,13 @@ import java.util.ArrayList;
  * Created by Divyansh on 11/4/2017.
  */
 
-public class RegisterHostelAdapter extends BaseAdapter {
+public class RegisterHostelAdapter extends ArrayAdapter<Hostel> {
 
     public Context context;
-    public ArrayList<Hostel> HostelList;
 
-    public RegisterHostelAdapter(Context context, ArrayList<Hostel> HostelList) {
-        super();
+    public RegisterHostelAdapter(Context context) {
+        super(context, 0);
         this.context = context;
-        this.HostelList = HostelList;
     }
 
     public class Holder
@@ -33,25 +30,10 @@ public class RegisterHostelAdapter extends BaseAdapter {
         Button   Register;
     }
 
-
-    @Override
-    public int getCount() {
-        return HostelList.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return HostelList.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         final RegisterHostelAdapter.Holder holder;
+        Hostel hostel = getItem(position);
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.hostel_card, parent, false);
             holder = new RegisterHostelAdapter.Holder();
@@ -63,8 +45,8 @@ public class RegisterHostelAdapter extends BaseAdapter {
             holder = (RegisterHostelAdapter.Holder) convertView.getTag();
         }
 
-        holder.HostelId.setText(HostelList.get(position).getUid());
-        holder.WaitListNum.setText(HostelList.get(position).getWaitList());
+        holder.HostelId.setText(hostel.getHostel_id());
+        holder.WaitListNum.setText(hostel.getWaitList());
         return convertView;
     }
 }

@@ -5,16 +5,16 @@ package com.example.divyansh.dbprojectandroid;
  */
 
 public class Hostel {
-    private String uid;
+    private String hostel_id;
     private String waitList;
 
     public Hostel(String uid, String waitList){
-        this.uid = uid;
+        this.hostel_id = uid;
         this.waitList = waitList;
     }
 
-    public String getUid(){
-        return uid;
+    public String getHostel_id(){
+        return hostel_id;
     }
 
     public String getWaitList(){
