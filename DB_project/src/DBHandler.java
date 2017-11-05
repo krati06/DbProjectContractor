@@ -209,6 +209,27 @@ public class DBHandler {
 		}
 		return obj;
 	}
+        public static JSONArray GetHostels(){
+		JSONArray json = new JSONArray();
+		try (
+		    Connection conn = DriverManager.getConnection(
+		    		connString, userName, "");
+		    PreparedStatement postSt = conn.prepareStatement("select hostel_id from hostel");
+		)
+		{
+			ResultSet rs = postSt.executeQuery();
+			conn.close();
+			json = ResultSetConverter(rs);			
+			return json;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return json;
+		
+	}
 
 	private static JSONArray ResultSetConverter(ResultSet rs) throws SQLException, JSONException {
 		
