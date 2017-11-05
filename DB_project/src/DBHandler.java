@@ -20,9 +20,14 @@ public class DBHandler {
 	private static String userName = "snehal";
 	private static String passWord = "";
 	
+	
 	public static JSONObject register(String id, String hostel_id)
 	{
 		JSONObject obj = new JSONObject();
+		
+		
+		
+		
 		try{   
 			Connection conn = DriverManager.getConnection(connString, userName, passWord);
 			
@@ -34,7 +39,8 @@ public class DBHandler {
 			}
 			
 			
-			PreparedStatement ps=conn.prepareStatement("select nextval('waitlist_number')");
+			PreparedStatement ps=conn.prepareStatement("select max(waitlist_number)+1 from wait_list where hostel_id=?");
+			ps.setString(1, hostel_id);
 			ResultSet rs=ps.executeQuery(); 
 			int waitlist_number=1;
 			if(rs.next()) {
@@ -62,6 +68,42 @@ public class DBHandler {
 				sqle.printStackTrace();
 			}
 		return obj;
+	}
+	
+	public static JSONArray WaitlistNumber(String id)
+	{
+			
+			JSONArray json = new JSONArray();
+			try (
+			    Connection conn = DriverManager.getConnection(
+			    		connString, userName, "");
+			    PreparedStatement postSt = conn.prepareStatement("select hostel_id,waitlist_number from waitlist where student_id=? and week_id=?");
+			)
+			{
+				PreparedStatement ps1=conn.prepareStatement("select currval('week_id')");
+				ResultSet rs1=ps1.executeQuery(); 
+				int week_id=1;
+				if(rs1.next()) {
+					week_id=rs1.getInt(1);
+				}
+				
+				postSt.setString(1, id);
+				postSt.setInt(2,week_id);
+				ResultSet rs = postSt.executeQuery();
+				
+				
+				conn.close();
+				json = ResultSetConverter(rs);			
+				return json;
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			return json;
+	
 	}
 	
 	public static JSONObject optout(String id) throws JSONException
