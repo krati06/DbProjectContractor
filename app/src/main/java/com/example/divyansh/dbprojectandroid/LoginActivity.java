@@ -61,8 +61,9 @@ public class LoginActivity extends AppCompatActivity{
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
-    private View mProgressView;
     private View mLoginFormView;
+    View progressOverlay;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +88,7 @@ public class LoginActivity extends AppCompatActivity{
         });
 
         mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
+        progressOverlay = findViewById(R.id.progress_overlay);
     }
 
 
@@ -173,18 +174,18 @@ public class LoginActivity extends AppCompatActivity{
 //                }
 //            });
 
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
+            progressOverlay.setVisibility(show ? View.VISIBLE : View.GONE);
+            progressOverlay.animate().setDuration(shortAnimTime).alpha(
                     show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                    progressOverlay.setVisibility(show ? View.VISIBLE : View.GONE);
                 }
             });
         } else {
             // The ViewPropertyAnimator APIs are not available, so simply show
             // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            progressOverlay.setVisibility(show ? View.VISIBLE : View.GONE);
 //            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Login progress -->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/progress_overlay"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#80000000"
+    on
+    android:animateLayoutChanges="true"
+    android:clickable="true"
+    android:visibility="visible"
+    tools:ignore="InvalidId">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_centerInParent="true">
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:id="@+id/login_loader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/login_loader"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            android:layout_marginLeft="16dp"
+            android:text="Logging in..."/>
+    </LinearLayout>
+</RelativeLayout>
