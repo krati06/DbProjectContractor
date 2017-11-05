@@ -20,16 +20,9 @@ public class DBHandler {
 	private static String userName = "snehal";
 	private static String passWord = "";
 	
-	
-	
-	
 	public static JSONObject register(String id, String hostel_id)
 	{
 		JSONObject obj = new JSONObject();
-		
-		
-		
-		
 		try{   
 			Connection conn = DriverManager.getConnection(connString, userName, passWord);
 			
@@ -121,6 +114,96 @@ public class DBHandler {
 			
 		
 		catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return obj;
+	}
+	
+	public static JSONObject Hostel(String uid) throws JSONException{
+		JSONObject obj = new JSONObject();
+		try {
+			obj.put("status", true);
+			JSONArray jsonObj = new JSONArray();
+			try{
+				// Create the connection
+				Connection conn = DriverManager.getConnection(connString, userName, passWord);
+				String query = "select hostel_id from student where student_id = ?";
+				PreparedStatement preparedStmt = conn.prepareStatement(query);
+				preparedStmt.setString(1, uid);
+				ResultSet result =  preparedStmt.executeQuery();
+				
+				jsonObj = DBHandler.ResultSetConverter(result);	
+				preparedStmt.close();
+				conn.close();
+				 
+			} catch(Exception e){
+				e.printStackTrace();
+			}
+			
+			obj.put("data", jsonObj);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return obj;
+	}
+	
+	public static JSONObject Menu(String hostel_id, String day, String week_id) throws JSONException{
+		JSONObject obj = new JSONObject();
+		try {
+			obj.put("status", true);
+			JSONArray jsonObj = new JSONArray();
+			try{
+				// Create the connection
+				Connection conn = DriverManager.getConnection(connString, userName, passWord);
+				String query = "select dish from menu where hostel_id = ? and week_id = ? and day = ?";
+				PreparedStatement preparedStmt = conn.prepareStatement(query);
+				preparedStmt.setString(1, hostel_id);
+				preparedStmt.setString(2, week_id);
+				preparedStmt.setString(3, day);
+				ResultSet result =  preparedStmt.executeQuery();
+				
+				jsonObj = DBHandler.ResultSetConverter(result);	
+				preparedStmt.close();
+				conn.close();
+				 
+			} catch(Exception e){
+				e.printStackTrace();
+			}
+			
+			obj.put("data", jsonObj);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return obj;
+	}
+	
+	public static JSONObject Waitlist(String student_id, String week_interval) throws JSONException{
+		JSONObject obj = new JSONObject();
+		try {
+			obj.put("status", true);
+			JSONArray jsonObj = new JSONArray();
+			try{
+				// Create the connection
+				Connection conn = DriverManager.getConnection(connString, userName, passWord);
+				String query = "select hostel_id, waitlist_number from waitlist where student_id = ? and week_interval = ?";
+				PreparedStatement preparedStmt = conn.prepareStatement(query);
+				preparedStmt.setString(1, student_id);
+				preparedStmt.setString(2, week_interval);
+				ResultSet result =  preparedStmt.executeQuery();
+				
+				jsonObj = DBHandler.ResultSetConverter(result);	
+				preparedStmt.close();
+				conn.close();
+				 
+			} catch(Exception e){
+				e.printStackTrace();
+			}
+			
+			obj.put("data", jsonObj);
+		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
