@@ -50,7 +50,6 @@ public class LoginActivity extends AppCompatActivity{
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
-    private View mLoginFormView;
     private Switch remember_me;
     View progressOverlay;
 
@@ -77,8 +76,6 @@ public class LoginActivity extends AppCompatActivity{
                 attemptLogin();
             }
         });
-
-        mLoginFormView = findViewById(R.id.login_form);
         progressOverlay = findViewById(R.id.progress_overlay);
     }
 
