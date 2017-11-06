@@ -19,6 +19,7 @@ import android.view.View.OnClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Switch;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,6 +34,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.net.URLEncoder;
 
 /**
  * A login screen that offers login via email/password.
@@ -49,6 +51,7 @@ public class LoginActivity extends AppCompatActivity{
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
     private View mLoginFormView;
+    private Switch remember_me;
     View progressOverlay;
 
 
@@ -65,6 +68,7 @@ public class LoginActivity extends AppCompatActivity{
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         mPasswordView = (EditText) findViewById(R.id.password);
+        remember_me = (Switch) findViewById(R.id.remember_me);
 
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
@@ -127,7 +131,14 @@ public class LoginActivity extends AppCompatActivity{
             // perform the user login attempt.
             showProgress(true);
             mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+            try
+            {
+                mAuthTask.execute((Void) null).get();
+            }
+            catch (Exception e)
+            {
+
+            }
         }
     }
 
@@ -138,7 +149,7 @@ public class LoginActivity extends AppCompatActivity{
 
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 4;
+        return true;
     }
 
     /**
@@ -151,16 +162,6 @@ public class LoginActivity extends AppCompatActivity{
         // the progress spinner.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-//            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-//            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-//                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-//                @Override
-//                public void onAnimationEnd(Animator animation) {
-//                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-//                }
-//            });
-
             progressOverlay.setVisibility(show ? View.VISIBLE : View.GONE);
             progressOverlay.animate().setDuration(shortAnimTime).alpha(
                     show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
@@ -173,7 +174,6 @@ public class LoginActivity extends AppCompatActivity{
             // The ViewPropertyAnimator APIs are not available, so simply show
             // and hide the relevant UI components.
             progressOverlay.setVisibility(show ? View.VISIBLE : View.GONE);
-//            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 
@@ -185,7 +185,6 @@ public class LoginActivity extends AppCompatActivity{
 
         private final String mEmail;
         private final String mPassword;
-        private final String MyPREFERENCES = "pref";
         URL url;
         UserLoginTask(String email, String password) {
             mEmail = email;
@@ -195,20 +194,24 @@ public class LoginActivity extends AppCompatActivity{
         @Override
         protected Boolean doInBackground(Void... params) {
             JSONObject Params = new JSONObject();
+            String data = "";
             try {
                 Params.put("username", mEmail);
-                Params.put("password", mPassword);
+                Params.put("password",mPassword);
                 Log.e("params",Params.toString());
+                data = URLEncoder.encode("username", "UTF-8")
+                        + "=" + URLEncoder.encode(mEmail, "UTF-8");
+                data += "&" + URLEncoder.encode("password", "UTF-8") + "="
+                        + URLEncoder.encode(mPassword, "UTF-8");
+                data += "&" + URLEncoder.encode("rememberMe", "UTF-8") + "="
+                        + URLEncoder.encode(String.valueOf(remember_me.isChecked()), "UTF-8");
+
                 String base_url = getString(R.string.base_url);
-                URL url = new URL(base_url + "/Login");
-            } catch (JSONException e) {
+                url = new URL(base_url + "/Login");
+            } catch (Exception e) {
                 e.printStackTrace();
                 return false;
-            }catch (MalformedURLException m){
-                m.printStackTrace();
             }
-
-
 
             try {
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -220,7 +223,7 @@ public class LoginActivity extends AppCompatActivity{
                 OutputStream os = conn.getOutputStream();
                 BufferedWriter writer = new BufferedWriter(
                         new OutputStreamWriter(os, "UTF-8"));
-                writer.write(Params.toString());
+                writer.write(data);
                 writer.flush();
                 writer.close();
                 os.close();
@@ -240,14 +243,20 @@ public class LoginActivity extends AppCompatActivity{
 
                     in.close();
                     Log.e("RESPONSE FROM SERVER", sb.toString());
-                    conn.disconnect();
                     JSONObject json = new JSONObject(sb.toString());
                     boolean isValid = (boolean) json.get("status");
-                    String token = (String) json.get("token");
-                    SharedPreferences sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+
+                    if(!isValid)
+                        return false;
+
+                    SharedPreferences sharedpreferences = getSharedPreferences(getString(R.string.MyPREFERENCES), Context.MODE_PRIVATE);
                     Editor editor = sharedpreferences.edit();
-                    editor.putString("token", token);
-                    editor.putString("user", mEmail);
+                    if(remember_me.isChecked())
+                    {
+                        String token = (String) json.get("token");
+                        editor.putString("token", token);
+                    }
+                    editor.putString("username", mEmail);
                     editor.commit();
                     return isValid;
                 }
@@ -271,15 +280,16 @@ public class LoginActivity extends AppCompatActivity{
 
 
             if (success) {
+
                 Intent intent = new Intent(LoginActivity.this,StartPage.class);
                 startActivity(intent);
+                finish();
             } else {
+                showProgress(false);
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
             }
-
         }
-
 
         @Override
         protected void onCancelled() {

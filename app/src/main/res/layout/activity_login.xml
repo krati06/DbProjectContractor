@@ -68,7 +68,7 @@
                     android:layout_marginRight="8dp"
                     android:paddingTop="16dp"
                     android:paddingBottom="16dp"
-                    android:id="@+id/reminder" />
+                    android:id="@+id/remember_me" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:text="Remember Me"
