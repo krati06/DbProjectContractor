@@ -101,6 +101,12 @@ create table mess_rating(
         foreign key (week_id) references week_interval on delete cascade
 );
 
+create table token(
+	student_id varchar(20),
+	token varchar(20),
+	foreign key (student_id) references student on delete cascade
+);
+
 CREATE SEQUENCE waitlist_number START 1;
 CREATE SEQUENCE week_id START 1;
 
