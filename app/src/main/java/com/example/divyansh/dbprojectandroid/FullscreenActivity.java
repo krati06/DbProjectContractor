@@ -37,7 +37,7 @@ public class FullscreenActivity extends AppCompatActivity {
         LoginTask mAuthTask = null;
         super.onCreate(savedInstanceState);
         View decorView = getWindow().getDecorView();
-        final String MyPREFERENCES = "pref";
+
         int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
         ActionBar actionBar = getSupportActionBar();
@@ -45,9 +45,17 @@ public class FullscreenActivity extends AppCompatActivity {
             actionBar.hide();
         }
         setContentView(R.layout.activity_fullscreen);
-        SharedPreferences sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+
+        SharedPreferences sharedpreferences = getSharedPreferences(getString(R.string.MyPREFERENCES), Context.MODE_PRIVATE);
         String token = sharedpreferences.getString("token", "");
-        mAuthTask = new LoginTask(token);
+        String username = sharedpreferences.getString("username","");
+        if(token.equals("") | username.equals(""))
+        {
+            Intent intent = new Intent(FullscreenActivity.this,LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
+        mAuthTask = new LoginTask(username,token);
         mAuthTask.execute((Void) null);
 
     }
@@ -55,10 +63,12 @@ public class FullscreenActivity extends AppCompatActivity {
     public class LoginTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String token;
+        private final String username;
         private final String MyPREFERENCES = "pref";
         URL url;
-        LoginTask(String in) {
-            token = in;
+        LoginTask(String in1, String in2) {
+            token = in2;
+            username = in1;
         }
 
         @Override
@@ -66,7 +76,7 @@ public class FullscreenActivity extends AppCompatActivity {
             JSONObject Params = new JSONObject();
             try {
                 Params.put("token", token);
-
+                Params.put("username",username);
                 Log.e("params",Params.toString());
                 String base_url = getString(R.string.base_url);
                 URL url = new URL(base_url + "/Login");
@@ -110,12 +120,15 @@ public class FullscreenActivity extends AppCompatActivity {
                     in.close();
                     Log.e("RESPONSE FROM SERVER", sb.toString());
                     conn.disconnect();
+
                     JSONObject json = new JSONObject(sb.toString());
                     boolean isValid = (boolean) json.get("status");
                     String token = (String) json.get("token");
-                    SharedPreferences sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+                    String username = (String) json.get("username");
+                    SharedPreferences sharedpreferences = getSharedPreferences(getString(R.string.MyPREFERENCES), Context.MODE_PRIVATE);
                     Editor editor = sharedpreferences.edit();
                     editor.putString("token", token);
+                    editor.putString("username", username);
                     editor.commit();
                     return isValid;
                 }
@@ -141,11 +154,12 @@ public class FullscreenActivity extends AppCompatActivity {
             if (success) {
                 Intent intent = new Intent(FullscreenActivity.this,StartPage.class);
                 startActivity(intent);
+                finish();
             } else {
                 Intent intent = new Intent(FullscreenActivity.this,LoginActivity.class);
                 startActivity(intent);
+                finish();
             }
-
         }
     }
 }
