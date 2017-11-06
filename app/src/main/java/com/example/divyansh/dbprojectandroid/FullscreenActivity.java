@@ -25,6 +25,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.net.URLEncoder;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -32,12 +33,13 @@ import java.net.URL;
  */
 public class FullscreenActivity extends AppCompatActivity {
     private Handler mHandler = new Handler();
+    private Handler mHandler_async = new Handler();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         LoginTask mAuthTask = null;
         super.onCreate(savedInstanceState);
         View decorView = getWindow().getDecorView();
-        final String MyPREFERENCES = "pref";
+
         int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
         ActionBar actionBar = getSupportActionBar();
@@ -45,39 +47,58 @@ public class FullscreenActivity extends AppCompatActivity {
             actionBar.hide();
         }
         setContentView(R.layout.activity_fullscreen);
-        SharedPreferences sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-        String token = sharedpreferences.getString("token", "");
-        mAuthTask = new LoginTask(token);
-        mAuthTask.execute((Void) null);
 
+        SharedPreferences sharedpreferences = getSharedPreferences(getString(R.string.MyPREFERENCES), Context.MODE_PRIVATE);
+        String token = sharedpreferences.getString("token", "");
+        String username = sharedpreferences.getString("username","");
+        if(token.equals("") | username.equals(""))
+        {
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent(FullscreenActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }, 2000); // 2 seconds
+        }
+        else
+        {
+            mAuthTask = new LoginTask(username,token);
+            mAuthTask.execute((Void) null);
+
+        }
     }
 
     public class LoginTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String token;
+        private final String username;
         private final String MyPREFERENCES = "pref";
         URL url;
-        LoginTask(String in) {
-            token = in;
+        LoginTask(String in1, String in2) {
+            token = in2;
+            username = in1;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
             JSONObject Params = new JSONObject();
+            String data = "";
             try {
                 Params.put("token", token);
-
+                Params.put("username",username);
                 Log.e("params",Params.toString());
+                data = URLEncoder.encode("token", "UTF-8")
+                        + "=" + URLEncoder.encode(token, "UTF-8");
+                data += "&" + URLEncoder.encode("username", "UTF-8") + "="
+                        + URLEncoder.encode(username, "UTF-8");
                 String base_url = getString(R.string.base_url);
-                URL url = new URL(base_url + "/Login");
-            } catch (JSONException e) {
+                url = new URL(base_url + "/Fullscreen");
+            } catch (Exception e) {
                 e.printStackTrace();
                 return false;
-            }catch (MalformedURLException m){
-                m.printStackTrace();
             }
-
-
 
             try {
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -89,7 +110,7 @@ public class FullscreenActivity extends AppCompatActivity {
                 OutputStream os = conn.getOutputStream();
                 BufferedWriter writer = new BufferedWriter(
                         new OutputStreamWriter(os, "UTF-8"));
-                writer.write(Params.toString());
+                writer.write(data);
                 writer.flush();
                 writer.close();
                 os.close();
@@ -109,13 +130,17 @@ public class FullscreenActivity extends AppCompatActivity {
 
                     in.close();
                     Log.e("RESPONSE FROM SERVER", sb.toString());
-                    conn.disconnect();
+
                     JSONObject json = new JSONObject(sb.toString());
                     boolean isValid = (boolean) json.get("status");
+                    if(!isValid)
+                        return false;
                     String token = (String) json.get("token");
-                    SharedPreferences sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+                    String username = (String) json.get("username");
+                    SharedPreferences sharedpreferences = getSharedPreferences(getString(R.string.MyPREFERENCES), Context.MODE_PRIVATE);
                     Editor editor = sharedpreferences.edit();
                     editor.putString("token", token);
+                    editor.putString("username", username);
                     editor.commit();
                     return isValid;
                 }
@@ -135,17 +160,28 @@ public class FullscreenActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(final Boolean success) {
-
-
-
             if (success) {
-                Intent intent = new Intent(FullscreenActivity.this,StartPage.class);
-                startActivity(intent);
-            } else {
-                Intent intent = new Intent(FullscreenActivity.this,LoginActivity.class);
-                startActivity(intent);
-            }
 
+                mHandler_async.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent intent = new Intent(FullscreenActivity.this,StartPage.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                }, 2000); // 2 seconds
+
+            } else {
+
+                mHandler_async.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent intent = new Intent(FullscreenActivity.this,LoginActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                }, 2000); // 2 seconds
+            }
         }
     }
 }

@@ -25,5 +25,6 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Logout</string>
-    <string name="base_url">http://10.10.128.55:8080/Project</string>
+    <string name="MyPREFERENCES">pref</string>
+    <string name="base_url">http://10.196.4.127:8080/DB_project</string>
 </resources>

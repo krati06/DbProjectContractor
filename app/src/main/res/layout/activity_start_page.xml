@@ -22,4 +22,6 @@
         app:headerLayout="@layout/nav_header_start_page"
         app:menu="@menu/activity_start_page_drawer" />
 
+    <include layout="@layout/loader" />
+
 </android.support.v4.widget.DrawerLayout>
