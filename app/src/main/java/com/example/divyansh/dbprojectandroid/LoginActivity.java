@@ -43,8 +43,6 @@ public class LoginActivity extends AppCompatActivity{
      * Id to identity READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
-    public static String base_url = "http://10.10.128.55:8080/Project";
-
     private UserLoginTask mAuthTask = null;
 
     // UI references.
@@ -201,6 +199,7 @@ public class LoginActivity extends AppCompatActivity{
                 Params.put("username", mEmail);
                 Params.put("password", mPassword);
                 Log.e("params",Params.toString());
+                String base_url = getString(R.string.base_url);
                 URL url = new URL(base_url + "/Login");
             } catch (JSONException e) {
                 e.printStackTrace();
