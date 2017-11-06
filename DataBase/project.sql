@@ -21,6 +21,13 @@ create table student(
 	primary key(student_id)
 );
 
+create table token( 
+	student_id varchar(20),
+	token varchar(20),
+	foreign key(student_id) references student on delete cascade
+);
+
+
 create table student_password(
 	student_id 	varchar(20),
 	password	varchar(20),
@@ -75,9 +82,9 @@ create table menu(
 	timeslot	varchar(20),
 	student_limit	numeric,
 	dish	varchar(20),	
-        week_id numeric,
+    week_id numeric,
 	foreign key (dish) references dishes on delete cascade,
-        foreign key (week_id) references week_interval on delete cascade,
+    foreign key (week_id) references week_interval on delete cascade,
 	foreign key (hostel_id) references hostel on delete cascade,
 	primary key(hostel_id,day,timeslot)
 );
