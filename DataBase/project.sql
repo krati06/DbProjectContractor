@@ -21,17 +21,16 @@ create table student(
 	primary key(student_id)
 );
 
-create table token( 
-	student_id varchar(20),
-	token varchar(20),
-	foreign key(student_id) references student on delete cascade
-);
-
-
 create table student_password(
 	student_id 	varchar(20),
 	password	varchar(20),
 	foreign key (student_id) references student on delete cascade
+);
+
+create table token( 
+	student_id varchar(20),
+	token varchar(20),
+	foreign key(student_id) references student on delete cascade
 );
 
 create table contractor_password(
@@ -39,8 +38,6 @@ create table contractor_password(
 	password	varchar(20),
 	foreign key (contractor_id) references contractor on delete cascade
 );
-
-
 
 create table waitlist(
 	student_id	varchar(20),
@@ -70,23 +67,32 @@ create table feedback(
 	foreign key (hostel_id) references hostel on delete cascade
 );
 
+CREATE SEQUENCE menu_id START 1;
+
 create table dishes(
-	dish	varchar(20),	
+	dish_name	varchar(20),	
 	description varchar(40),
-	primary key(dish)
+	primary key(dish_name)
+);
+
+create table menu_dish(
+	menu_id 	varchar(20),
+	dish_name	varchar(20),
+	foreign key (dish_name) references dishes on delete cascade,
+	foreign key (menu_id) references menu on delete cascade,
+	primary key(menu_id, dish_name)
 );
 
 create table menu(
+	menu_id		varchar(20),
 	hostel_id	varchar(20),
 	day	date,
 	timeslot	varchar(20),
 	student_limit	numeric,
-	dish	varchar(20),	
     week_id numeric,
-	foreign key (dish) references dishes on delete cascade,
     foreign key (week_id) references week_interval on delete cascade,
 	foreign key (hostel_id) references hostel on delete cascade,
-	primary key(hostel_id,day,timeslot)
+	primary key(menu_id)
 );
 
 create table week_interval(
@@ -110,4 +116,3 @@ create table mess_rating(
 
 CREATE SEQUENCE waitlist_number START 1;
 CREATE SEQUENCE week_id START 1;
-
