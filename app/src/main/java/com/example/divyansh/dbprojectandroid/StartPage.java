@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -23,6 +24,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,6 +42,9 @@ import java.net.URLEncoder;
 
 public class StartPage extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private Handler mHandler = new Handler();
+    private Handler mHandler_async = new Handler();
 
     View progressOverlay;
     @Override
@@ -141,14 +146,22 @@ public class StartPage extends AppCompatActivity
         } else if (id == R.id.action_Optout)
         {
             new AlertDialog.Builder(this)
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setTitle("Logout Activity")
+                    .setIcon(R.drawable.warning)
+                    .setTitle("OptOut Activity")
                     .setMessage("Are you sure you want to Opt out?")
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener()
                     {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             // call to optout
+                            SharedPreferences sharedpreferences = getSharedPreferences(getString(R.string.MyPREFERENCES), Context.MODE_PRIVATE);
+                            String token = sharedpreferences.getString("token", "");
+                            String username = sharedpreferences.getString("username","");
+                            OptoutTask mAuthTask = new StartPage.OptoutTask(username,token);
+                            mAuthTask.execute((Void) null);
+                            showProgress(true);
+                            dialog.dismiss();
+
                         }
 
                     })
@@ -270,9 +283,118 @@ public class StartPage extends AppCompatActivity
 
         @Override
         protected void onPostExecute(final Boolean success) {
+            showProgress(false);
             Intent intent = new Intent(StartPage.this,LoginActivity.class);
             startActivity(intent);
             finish();
+        }
+    }
+
+    public class OptoutTask extends AsyncTask<Void, Void, Boolean> {
+
+        private final String token;
+        private final String username;
+        private final String MyPREFERENCES = "pref";
+        URL url;
+        OptoutTask(String in1, String in2) {
+            token = in2;
+            username = in1;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            JSONObject Params = new JSONObject();
+            String data = "";
+            try {
+                Params.put("token", token);
+                Params.put("username",username);
+                Log.e("params",Params.toString());
+                data = URLEncoder.encode("token", "UTF-8")
+                        + "=" + URLEncoder.encode(token, "UTF-8");
+                data += "&" + URLEncoder.encode("username", "UTF-8") + "="
+                        + URLEncoder.encode(username, "UTF-8");
+                String base_url = getString(R.string.base_url);
+                url = new URL(base_url + "/OptOut");
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+
+            try {
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(15000 /* milliseconds */);
+                conn.setConnectTimeout(15000 /* milliseconds */);
+                conn.setRequestMethod("POST");
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+                OutputStream os = conn.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(os, "UTF-8"));
+                writer.write(data);
+                writer.flush();
+                writer.close();
+                os.close();
+                int responseCode=conn.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK){ //This is 200
+                    Log.e("RESPONSE ok FROM SERVER", "1");
+                    BufferedReader in=new BufferedReader(
+                            new InputStreamReader(
+                                    conn.getInputStream()));
+                    StringBuffer sb = new StringBuffer("");
+                    String line="";
+
+                    while((line = in.readLine()) != null) {
+
+                        sb.append(line);
+                        break;
+                    }
+
+                    in.close();
+                    Log.e("RESPONSE FROM SERVER", sb.toString());
+
+                    JSONObject json = new JSONObject(sb.toString());
+                    boolean isValid = (boolean) json.get("status");
+                    if(!isValid)
+                        return false;
+
+                    return isValid;
+                }
+
+            } catch (ProtocolException e) {
+                e.printStackTrace();
+                return false;
+            }catch (IOException i){
+                i.printStackTrace();
+                return false;
+            }catch (JSONException j){
+                j.printStackTrace();
+                return false;
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            if (success) {
+
+                mHandler_async.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(),"Opted out successfully",Toast.LENGTH_SHORT).show();
+                        showProgress(false);
+                    }
+                }, 2000); // 2 seconds
+
+            } else {
+
+                mHandler_async.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(),"Failed Optout, Try again!",Toast.LENGTH_SHORT).show();
+                        showProgress(false);
+                    }
+                }, 2000); // 2 seconds
+            }
         }
     }
 }
