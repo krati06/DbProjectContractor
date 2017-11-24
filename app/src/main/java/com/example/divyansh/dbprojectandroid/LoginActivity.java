@@ -204,7 +204,7 @@ public class LoginActivity extends AppCompatActivity{
                         + URLEncoder.encode(String.valueOf(remember_me.isChecked()), "UTF-8");
 
                 String base_url = getString(R.string.base_url);
-                url = new URL(base_url + "/Login");
+                url = new URL(base_url + "/LoginContractor");
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;

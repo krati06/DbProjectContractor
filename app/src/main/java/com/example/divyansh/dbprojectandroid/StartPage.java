@@ -188,19 +188,12 @@ public class StartPage extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-            Intent intent = new Intent(StartPage.this,Register.class);
+        if (id == R.id.nav_feedback) {
+            Intent intent = new Intent(StartPage.this,ShowFeedback.class);
             startActivity(intent);
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        } else if (id == R.id.nav_limit) {
+            Intent intent = new Intent(StartPage.this,SetLimit.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -226,7 +219,7 @@ public class StartPage extends AppCompatActivity
                 data += "&" + URLEncoder.encode("username", "UTF-8") + "="
                         + URLEncoder.encode(username, "UTF-8");
                 String base_url = getString(R.string.base_url);
-                url = new URL(base_url + "/Logout");
+                url = new URL(base_url + "/LogoutContractor");
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;

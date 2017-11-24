@@ -32,7 +32,8 @@
             android:name=".StartPage"
             android:label="@string/title_activity_start_page"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".Register"></activity>
+        <activity android:name=".SetLimit" />
+        <activity android:name=".ShowFeedback"></activity>
     </application>
 
 </manifest>
